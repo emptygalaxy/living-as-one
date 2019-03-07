@@ -1,6 +1,6 @@
 {
-  "name": "living-as-one",
-  "version": "0.1.1",
+  "name": "living-as-one-encoder",
+  "version": "0.2.1",
   "description": "Node controller Living As One",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/emptygalaxy/living-as-one.git"
+    "url": "git+ssh://git@github.com/emptygalaxy/living-as-one-encoder.git"
   },
   "keywords": [
     "barco"
@@ -16,7 +16,7 @@
   "author": "Nick Timman <info@emptygalaxy.com> (https://emptygalaxy.com)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/emptygalaxy/living-as-one/issues"
+    "url": "https://github.com/emptygalaxy/living-as-one-encoder/issues"
   },
-  "homepage": "https://github.com/emptygalaxy/living-as-one#readme"
+  "homepage": "https://github.com/emptygalaxy/living-as-one-encoder#readme"
 }
