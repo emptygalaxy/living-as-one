@@ -3,6 +3,7 @@ const request = require('request');
 var _userName;
 var _password;
 var _customerId;
+var _offset = 0;
 
 const LOGIN_ENDPOINT    = '/api/v3/login';
 const USERS_ENDPOINT    = '/api_v2.svc/users';
@@ -41,6 +42,11 @@ async function reLogin(original, args)
     {
         original.apply(args);
     });
+}
+
+function setOffset(offset)
+{
+    _offset = offset;
 }
 
 async function getUsers(callback)
@@ -82,10 +88,25 @@ async function createCue(eventId, name, position, shared, callback)
         body: {
                 name: name,
                 position: position,
-                shared: true,
-                privateCue: false
+                // shared: true,
+                // privateCue: false
             }
         }, callback);
+}
+
+async function updateCue(eventId, cueId, name, position, callback)
+{
+    await base.patch(STREAM_PROFILES_ENDPOINT + _customerId + '/events/' + eventId + '/cues/' + cueId, {
+        body: {
+                name: name,
+                position: position
+            }
+        }, callback);
+}
+
+async function deleteCue(eventId, cueId, callback)
+{
+    await base.delete(STREAM_PROFILES_ENDPOINT + _customerId + '/events/' + eventId + '/cues/' + cueId, callback);
 }
 
 function UTCDate(str)
@@ -123,7 +144,7 @@ async function createLiveCue(name, callback)
             
             if(start.getTime() < now.getTime())
             {
-                var difference = now.getTime() - start.getTime();
+                var difference = now.getTime() - start.getTime() + offset;
                 var dif = new Date(difference);
                 var position = [leadingZeros(dif.getUTCHours()), leadingZeros(dif.getUTCMinutes()), leadingZeros(dif.getUTCSeconds())].join(':') + '.' + leadingZeros(dif.getUTCMilliseconds(), 3);
                 
