@@ -32,7 +32,7 @@ async function login(userName, password, callback)
     }, function(error, response, result)
     {
         _customerId = result.customerId;
-        if(callback) callback(error, response, result);
+        if(callback) callback.apply(this, arguments);
     });
 }
 
@@ -40,7 +40,9 @@ async function reLogin(original, args)
 {
     await login(_userName, _password, function(error, response, result)
     {
-        original.apply(args);
+        _customerId = result.customerId;
+        
+        original.apply(this, args);
     });
 }
 
@@ -75,6 +77,34 @@ async function getEncoders(callback)
 async function getEvents(callback)
 {
     await base.get(CUSTOMERS_ENDPOINT + _customerId + '/events', callback);
+}
+
+async function getLiveEvent(callback)
+{
+    getEvents(function(error, response, events)
+    {
+        if(response.statusCode != 200)
+        {
+            return reLogin(getLiveEvent, [callback]);
+        }
+        
+        if(!events)
+            return false;
+        
+        events  = sortEventsByDate(events);
+        
+        var now = new Date();
+        for(var i in events)
+        {
+            var event = events[i];
+            var start = new Date(event.startTime);
+            
+            if(start.getTime() < now.getTime())
+            {
+                return callback(error, response, event);
+            }
+        }
+    });
 }
 
 async function getCues(eventId, callback)
@@ -124,32 +154,44 @@ function sortEventsByDate(events)
 
 async function createLiveCue(name, callback)
 {
-    getEvents(function(error, response, events)
+    var now = new Date();
+    
+    await getLiveEvent(function(error, response, event)
     {
-        if(response.statusCode != 200)
+        if(event)
         {
-            return reLogin(createLiveCue, arguments);
-        }
-        
-        if(!events)
-            return false;
-        
-        events  = sortEventsByDate(events);
-        
-        var now = new Date();
-        for(var i in events)
-        {
-            var event = events[i];
             var start = new Date(event.startTime);
+            var difference = now.getTime() - start.getTime() + _offset;
+            var dif = new Date(difference);
+            var position = [leadingZeros(dif.getUTCHours()), leadingZeros(dif.getUTCMinutes()), leadingZeros(dif.getUTCSeconds())].join(':') + '.' + leadingZeros(dif.getUTCMilliseconds(), 3);
             
-            if(start.getTime() < now.getTime())
+            return createCue(event.uuid, name, position, shared=false, callback);
+        }
+    });
+}
+
+async function deleteUnsharedCues(callback)
+{
+    await getLiveEvent(function(error, response, event)
+    {
+        if(event)
+        {
+            getCues(event.uuid, function(error2, response2, cues)
             {
-                var difference = now.getTime() - start.getTime() + offset;
-                var dif = new Date(difference);
-                var position = [leadingZeros(dif.getUTCHours()), leadingZeros(dif.getUTCMinutes()), leadingZeros(dif.getUTCSeconds())].join(':') + '.' + leadingZeros(dif.getUTCMilliseconds(), 3);
-                
-                return createCue(event.uuid, name, position, shared=false, callback);
-            }
+                if(cues)
+                {
+                    var l = cues.length;
+                    for(var i=0; i<l; i++)
+                    {
+                        var cue = cues[i];
+                        
+                        if(cue.privateCue)
+                        {
+                            deleteCue(event.uuid, cue.uuid);
+                        }
+                    }
+                }
+            });
         }
     });
 }
@@ -172,9 +214,12 @@ exports.getUsers = getUsers;
 exports.getUser = getUser;
 exports.getEncoders = getEncoders;
 exports.getEvents = getEvents;
+exports.getLiveEvent = getLiveEvent;
 exports.getCues = getCues;
 exports.createCue = createCue;
 exports.createLiveCue = createLiveCue;
+exports.deleteCue = deleteCue;
+exports.deleteUnsharedCues = deleteUnsharedCues;
 
 
 //  demo
@@ -182,7 +227,7 @@ exports.createLiveCue = createLiveCue;
 getUsers();
 login('userName', 'password', function(error, response, result){
     // getUsers();
-    // getUser(1, function(error, response, user){ console.log(user); });
+    // getUser('123, function(error, response, user){ console.log(user); });
     createLiveCue('test', function(error, response, result){console.log(arguments)});
 });
 */
