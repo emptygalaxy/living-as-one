@@ -112,14 +112,15 @@ async function getCues(eventId, callback)
     await base.get(STREAM_PROFILES_ENDPOINT + _customerId + '/events/' + eventId + '/cues', callback);
 }
 
-async function createCue(eventId, name, position, shared, callback)
+async function createCue(eventProfileId, eventId, name, position, shared, callback)
 {
-    await base.post(STREAM_PROFILES_ENDPOINT + _customerId + '/events/' + eventId + '/cues', {
+    if(eventProfileId == null || shared == false)
+        eventProfileId  = _customerId;
+    
+    await base.post(STREAM_PROFILES_ENDPOINT + eventProfileId + '/events/' + eventId + '/cues', {
         body: {
                 name: name,
-                position: position,
-                // shared: true,
-                // privateCue: false
+                position: position
             }
         }, callback);
 }
@@ -163,9 +164,9 @@ async function createLiveCue(name, callback)
             var start = new Date(event.startTime);
             var difference = now.getTime() - start.getTime() + _offset;
             var dif = new Date(difference);
-            var position = [leadingZeros(dif.getUTCHours()), leadingZeros(dif.getUTCMinutes()), leadingZeros(dif.getUTCSeconds())].join(':') + '.' + leadingZeros(dif.getUTCMilliseconds(), 3);
+            var position = formatTime(dif);
             
-            return createCue(event.uuid, name, position, shared=false, callback);
+            return createCue(eventProfileId=event.eventProfileId, eventId=event.uuid, name, position, shared=false, callback);
         }
     });
 }
@@ -208,6 +209,11 @@ function leadingZeros(value, length)
     return value;
 }
 
+function formatTime(date)
+{
+    return [[leadingZeros(date.getUTCHours()), leadingZeros(date.getUTCMinutes()), leadingZeros(date.getUTCSeconds())].join(':'), leadingZeros(date.getUTCMilliseconds(), 3)].join('.');
+}
+
 //  Exports
 exports.login = login;
 exports.getUsers = getUsers;
@@ -220,6 +226,7 @@ exports.createCue = createCue;
 exports.createLiveCue = createLiveCue;
 exports.deleteCue = deleteCue;
 exports.deleteUnsharedCues = deleteUnsharedCues;
+exports.formatTime = formatTime;
 
 
 //  demo
