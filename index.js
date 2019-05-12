@@ -1,9 +1,29 @@
 const request = require('request');
 
-var _userName;
-var _password;
-var _customerId;
-var _offset = 0;
+/**
+ * @type {string}
+ * @private
+ */
+let _userName;
+
+/**
+ * @type {string}
+ * @private
+ */
+let _password;
+
+/**
+ * @type {string}
+ * @private
+ */
+let _customerId;
+
+/**
+ * Time offset for live cues
+ * @type {number}
+ * @private
+ */
+let _offset = 0;
 
 const LOGIN_ENDPOINT    = '/api/v3/login';
 const USERS_ENDPOINT    = '/api_v2.svc/users';
@@ -11,7 +31,7 @@ const ENCODERS_ENDPOINT = '/api_v2.svc/encoders';
 const CUSTOMERS_ENDPOINT = '/api/v3/customers/';
 const STREAM_PROFILES_ENDPOINT  = '/api_v2.svc/streamprofiles/';
 
-var base = request.defaults({
+const base = request.defaults({
     jar: true,
     baseUrl: 'https://central.livingasone.com',
     json: true,
@@ -19,7 +39,15 @@ var base = request.defaults({
     // strictSSL: false
 });
 
-async function login(userName, password, callback)
+
+/**
+ * Log in to your encoder
+ * @param {string} userName
+ * @param {string} password
+ * @param {null|function} callback
+ * @returns {Promise<void>}
+ */
+async function login(userName, password, callback=null)
 {
     _userName = userName;
     _password = password;
@@ -31,90 +59,146 @@ async function login(userName, password, callback)
         }
     }, function(error, response, result)
     {
-        _customerId = result.customerId;
-        if(callback) callback.apply(this, arguments);
+        if(result)
+            _customerId = result.customerId;
+
+        if(callback)
+            callback.apply(this, arguments);
     });
 }
 
+/**
+ * Re-login
+ * @param {function} original
+ * @param {Array} args
+ * @returns {Promise<void>}
+ */
 async function reLogin(original, args)
 {
     await login(_userName, _password, function(error, response, result)
     {
-        _customerId = result.customerId;
+        if(result)
+            _customerId = result.customerId;
         
         original.apply(this, args);
     });
 }
 
+/**
+ * Set time offset for setting live cues
+ * @param {number} offset
+ */
 function setOffset(offset)
 {
     _offset = offset;
 }
 
+/**
+ * Get list of users in your environment
+ * @param {function} callback
+ * @returns {Promise<void>}
+ */
 async function getUsers(callback)
 {
     await base.get(USERS_ENDPOINT, callback);
 }
 
+/**
+ * Get single user
+ * @param {string} id
+ * @param {function} callback
+ * @returns {Promise<void>}
+ */
 async function getUser(id, callback)
 {
     await getUsers(function(error, response, users)
     {
-        for(var i in users)
+        if(users)
         {
-            var user = users[i];
-            if(user.Id == id)
-                return callback(error, response, user);
-        }
-    });
-}
-
-async function getEncoders(callback)
-{
-    await base.get(ENCODERS_ENDPOINT, callback);
-}
-
-async function getEvents(callback)
-{
-    await base.get(CUSTOMERS_ENDPOINT + _customerId + '/events', callback);
-}
-
-async function getLiveEvent(callback)
-{
-    getEvents(function(error, response, events)
-    {
-        if(response.statusCode != 200)
-        {
-            return reLogin(getLiveEvent, [callback]);
-        }
-        
-        if(!events)
-            return false;
-        
-        events  = sortEventsByDate(events);
-        
-        var now = new Date();
-        for(var i in events)
-        {
-            var event = events[i];
-            var start = new Date(event.startTime);
-            
-            if(start.getTime() < now.getTime())
+            for(let i in users)
             {
-                return callback(error, response, event);
+                let user = users[i];
+                if(user.Id === id)
+                    return callback(error, response, user);
             }
         }
     });
 }
 
+/**
+ * Get list of encoders
+ * @param {function} callback
+ * @returns {Promise<void>}
+ */
+async function getEncoders(callback)
+{
+    await base.get(ENCODERS_ENDPOINT, callback);
+}
+
+/**
+ * Get list of events
+ * @param {function} callback
+ * @returns {Promise<void>}
+ */
+async function getEvents(callback)
+{
+    await base.get(CUSTOMERS_ENDPOINT + _customerId + '/events', callback);
+}
+
+/**
+ * Get current ongoing event
+ * @param {function} callback
+ * @returns {Promise<void>}
+ */
+async function getLiveEvent(callback)
+{
+    await getEvents(function (error, response, events) {
+        if (!response || response.statusCode !== 200) {
+            return reLogin(getLiveEvent, [callback]);
+        }
+
+        if (events) {
+            events = sortEventsByDate(events);
+
+            const now = new Date();
+            for (let i in events) {
+                let event = events[i];
+                let start = new Date(event.startTime);
+
+                if (start.getTime() < now.getTime()) {
+                    return callback(error, response, event);
+                }
+            }
+        }
+
+        return false;
+    });
+}
+
+/**
+ * Get cues
+ * @param {string} eventId
+ * @param {function} callback
+ * @returns {Promise<void>}
+ */
 async function getCues(eventId, callback)
 {
     await base.get(STREAM_PROFILES_ENDPOINT + _customerId + '/events/' + eventId + '/cues', callback);
 }
 
-async function createCue(eventProfileId, eventId, name, position, shared, callback)
+/**
+ * Create a new cue
+ * @param {string} eventProfileId
+ * @param {string} eventId
+ * @param {string} name
+ * @param {string} position
+ * @param {boolean} shared
+ * @param {null|function} callback
+ * @returns {Promise<void>}
+ */
+async function createCue(eventProfileId, eventId, name, position, shared, callback=null)
 {
-    if(eventProfileId == null || shared == false)
+    if(eventProfileId == null || shared === false)
         eventProfileId  = _customerId;
     
     await base.post(STREAM_PROFILES_ENDPOINT + eventProfileId + '/events/' + eventId + '/cues', {
@@ -125,7 +209,16 @@ async function createCue(eventProfileId, eventId, name, position, shared, callba
         }, callback);
 }
 
-async function updateCue(eventId, cueId, name, position, callback)
+/**
+ * Update an existing cue
+ * @param {string} eventId
+ * @param {string} cueId
+ * @param {string} name
+ * @param {string} position
+ * @param {null|function} callback
+ * @returns {Promise<void>}
+ */
+async function updateCue(eventId, cueId, name, position, callback=null)
 {
     await base.patch(STREAM_PROFILES_ENDPOINT + _customerId + '/events/' + eventId + '/cues/' + cueId, {
         body: {
@@ -135,16 +228,34 @@ async function updateCue(eventId, cueId, name, position, callback)
         }, callback);
 }
 
-async function deleteCue(eventId, cueId, callback)
+/**
+ * Delete an existing cue
+ * @param {string} eventId
+ * @param {string} cueId
+ * @param {null|function} callback
+ * @returns {Promise<void>}
+ */
+async function deleteCue(eventId, cueId, callback=null)
 {
     await base.delete(STREAM_PROFILES_ENDPOINT + _customerId + '/events/' + eventId + '/cues/' + cueId, callback);
 }
 
+/**
+ * Convert timezone-less date to UTC date
+ * @private
+ * @param {string} str
+ * @returns {Date}
+ */
 function UTCDate(str)
 {
     return new Date(str + '+0000');
 }
 
+/**
+ * Sort events by start date/time
+ * @param {Array} events
+ * @returns {Array}
+ */
 function sortEventsByDate(events)
 {
     return events.sort(function(a, b)
@@ -153,42 +264,54 @@ function sortEventsByDate(events)
     });
 }
 
-async function createLiveCue(name, callback)
+/**
+ * Create a cue in the current ongoing event
+ * @param {string} name
+ * @param {boolean} shared
+ * @param {null|function} callback
+ * @returns {Promise<void>}
+ */
+async function createLiveCue(name, shared=false, callback=null)
 {
-    var now = new Date();
+    const now = new Date();
     
     await getLiveEvent(function(error, response, event)
     {
         if(event)
         {
-            var start = new Date(event.startTime);
-            var difference = now.getTime() - start.getTime() + _offset;
-            var dif = new Date(difference);
-            var position = formatTime(dif);
+            const start = new Date(event.startTime);
+            const difference = now.getTime() - start.getTime() + _offset;
+            const dif = new Date(difference);
+            const position = formatTime(dif);
             
-            return createCue(eventProfileId=event.eventProfileId, eventId=event.uuid, name, position, shared=false, callback);
+            return createCue(event.eventProfileId, event.uuid, name, position, shared, callback);
         }
     });
 }
 
-async function deleteUnsharedCues(callback)
+/**
+ * Cleanup all cues that are not shared
+ * @param {null|function} callback
+ * @returns {Promise<void>}
+ */
+async function deleteUnsharedCues(callback=null)
 {
-    await getLiveEvent(function(error, response, event)
+    await getLiveEvent(async function(error, response, event)
     {
         if(event)
         {
-            getCues(event.uuid, function(error2, response2, cues)
+            await getCues(event.uuid, async function(error2, response2, cues)
             {
                 if(cues)
                 {
-                    var l = cues.length;
-                    for(var i=0; i<l; i++)
+                    let l = cues.length;
+                    for(let i=0; i<l; i++)
                     {
-                        var cue = cues[i];
+                        let cue = cues[i];
                         
-                        if(cue.privateCue)
+                        if(cue.privateCue === true)
                         {
-                            deleteCue(event.uuid, cue.uuid);
+                            await deleteCue(event.uuid, cue.uuid);
                         }
                     }
                 }
@@ -197,18 +320,27 @@ async function deleteUnsharedCues(callback)
     });
 }
 
-function leadingZeros(value, length)
+/**
+ * Format a number with leading zeros
+ * @private
+ * @param {number|string} value
+ * @param {int} length
+ * @returns {string}
+ */
+function leadingZeros(value, length=2)
 {
-    if(length == undefined)
-        length = 2;
-    
     value = value.toString();
-    for(var i=value.length; i<length; i++)
+    for(let i=value.length; i<length; i++)
         value = '0' + value;
     
-    return value;
+    return value.toString();
 }
 
+/**
+ * Format a time as string value
+ * @param {Date} date
+ * @returns {string}
+ */
 function formatTime(date)
 {
     return [[leadingZeros(date.getUTCHours()), leadingZeros(date.getUTCMinutes()), leadingZeros(date.getUTCSeconds())].join(':'), leadingZeros(date.getUTCMilliseconds(), 3)].join('.');
@@ -216,6 +348,7 @@ function formatTime(date)
 
 //  Exports
 exports.login = login;
+exports.setOffset = setOffset;
 exports.getUsers = getUsers;
 exports.getUser = getUser;
 exports.getEncoders = getEncoders;
@@ -224,6 +357,7 @@ exports.getLiveEvent = getLiveEvent;
 exports.getCues = getCues;
 exports.createCue = createCue;
 exports.createLiveCue = createLiveCue;
+exports.updateCue = updateCue;
 exports.deleteCue = deleteCue;
 exports.deleteUnsharedCues = deleteUnsharedCues;
 exports.formatTime = formatTime;
