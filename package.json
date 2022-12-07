@@ -1,6 +1,6 @@
 {
   "name": "living-as-one-encoder",
-  "version": "0.2.8",
+  "version": "1.0.0",
   "description": "Node controller Living As One",
   "main": "dist/index.js",
   "scripts": {
