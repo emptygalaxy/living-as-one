@@ -1,16 +1,5 @@
-import {Capability} from './Capability';
+import {Profile} from './Profile';
 
-export interface LoginResponse {
-  customerId: string;
-  customerName: string;
-  userId: string;
-  userName: string;
-  userType: string;
-  capabilities: Capability[];
-  toggles: string[];
-  features: string[];
+export interface LoginResponse extends Profile {
   token: string;
-  emailVerified: boolean;
-  firstName: string;
-  lastName: string;
 }
