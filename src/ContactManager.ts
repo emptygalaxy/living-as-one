@@ -1,5 +1,4 @@
 import {LivingAsOneClient} from './LivingAsOneClient';
-import {User} from './types/User';
 import {Capability} from './types/Capability';
 import {Contact} from './types/Contact';
 
@@ -13,6 +12,7 @@ export class ContactManager {
    */
   public async getContacts(): Promise<Contact[] | void> {
     if (!this.client.hasCapability(Capability.getContacts)) return;
+
     const contacts = await this.client.call<Contact[]>(
       ContactManager.contactsEndpoint
     );
@@ -24,6 +24,7 @@ export class ContactManager {
    */
   public async getContact(id: string): Promise<Contact | void> {
     if (!this.client.hasCapability(Capability.getContacts)) return;
+
     return await this.client.call<Contact>(
       ContactManager.contactsEndpoint + '/' + id
     );
