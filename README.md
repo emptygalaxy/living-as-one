@@ -1,6 +1,28 @@
 # Living As One Encoder
 
-This library contains classes to wrap the undocumented living-as-one API for encoder functionality.
+This library contains classes to wrap the undocumented living-as-one API for encoder functionality.  
+To control any decoders, see [living-as-one-decoder](https://github.com/emptygalaxy/living-as-one-decoder).
+
+```mermaid
+graph LR
+    E[Encoder] -- Internet --> S((Living As One Cloud))
+    S -- Internet --> D
+    
+    IN[[Video source]] --> E
+    D --> OUT[[Video output]]
+    
+    subgraph nodejs
+      LAOE[living-as-one-encoder]
+      LAOD[living-as-one-decoder]
+    end
+    LAOE -- Living As One API --> S
+    LAOE -. controls .-> E
+    LAOD -- RossTalk over Local Network --> D[Decoder]
+    
+    click LAOE "https://github.com/emptygalaxy/living-as-one-encoder" "living-as-one-encoder"
+    click LAOD "https://github.com/emptygalaxy/living-as-one-decoder" "living-as-one-decoder"
+```
+
 
 ## Installation
 
