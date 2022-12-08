@@ -10,6 +10,25 @@ Install living-as-one-encoder with npm
   npm install living-as-one-encoder
 ```
 
+## Features
+
+- Cues
+    - get cues
+    - create cue
+    - create cue in real-time
+    - update cue
+    - delete cue
+    - delete/clean-up cues that are not shared
+- Encoders
+    - get encoders
+- Events
+    - get events
+    - get the event that is live
+- Users
+    - get users
+    - get user
+
+
 ## Usage/Examples
 
 ```typescript
@@ -56,21 +75,3 @@ client
         console.error(err);
     });
 ```
-
-## Features
-
-- Cues
-    - get cues
-    - create cue
-    - create cue in real-time
-    - update cue
-    - delete cue
-    - delete/clean-up cues that are not shared
-- Encoders
-    - get encoders
-- Events
-    - get events
-    - get the event that is live
-- Users
-    - get users
-    - get user
