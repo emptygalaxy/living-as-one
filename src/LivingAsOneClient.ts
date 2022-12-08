@@ -7,12 +7,14 @@ import {LoginResponse} from './types/LoginResponse';
 import {CookieJar} from 'tough-cookie';
 import {wrapper} from 'axios-cookiejar-support';
 import {Capability} from './types/Capability';
+import {ContactManager} from './ContactManager';
 wrapper(axios);
 
 export class LivingAsOneClient {
   public readonly users = new UserManager(this);
   public readonly events = new EventManager(this);
   public readonly cues = new CueManager(this);
+  public readonly contacts = new ContactManager(this);
   public readonly encoders = new EncoderManager(this);
 
   private static loginEndpoint = '/api/v3/login';

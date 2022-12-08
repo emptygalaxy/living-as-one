@@ -12,6 +12,9 @@ Install living-as-one-encoder with npm
 
 ## Features
 
+- Contacts
+  - get contacts
+  - get contact
 - Cues
     - get cues
     - create cue

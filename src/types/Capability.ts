@@ -1,76 +1,108 @@
 export enum Capability {
-  getEventProfileUsers = 'getEventProfileUsers',
-  addWebEncoderProfiles = 'addWebEncoderProfiles',
-  updateEventProfiles = 'updateEventProfiles',
-  addPublicCues = 'addPublicCues',
-  addUserInvites = 'addUserInvites',
-  updateEncoderProfiles = 'updateEncoderProfiles',
-  deleteUsers = 'deleteUsers',
-  updateManageSubscription = 'updateManageSubscription',
-  addContacts = 'addContacts',
-  getEvents = 'getEvents',
+  // Account
+  getAccountDetails = 'getAccountDetails',
   updateAccountDetails = 'updateAccountDetails',
-  getEncoders = 'getEncoders',
-  getUsers = 'getUsers',
-  deleteEventProfileUsers = 'deleteEventProfileUsers',
-  updateEncoders = 'updateEncoders',
-  addTranscodedEventProfiles = 'addTranscodedEventProfiles',
-  deleteUploaders = 'deleteUploaders',
-  getUserInvites = 'getUserInvites',
-  getPublicCues = 'getPublicCues',
-  updateWebEventProfileStreamUrls = 'updateWebEventProfileStreamUrls',
-  addVideoUpload = 'addVideoUpload',
-  addEvents = 'addEvents',
-  getDashboard = 'getDashboard',
-  getEncoderProfiles = 'getEncoderProfiles',
-  updateEncodersVersion = 'updateEncodersVersion',
-  addSchedules = 'addSchedules',
-  updatePublicCues = 'updatePublicCues',
-  getManageSubscription = 'getManageSubscription',
-  getCustomer = 'getCustomer',
-  deleteManageSubscription = 'deleteManageSubscription',
-  getEventProfiles = 'getEventProfiles',
-  getMultisiteDashboard = 'getMultisiteDashboard',
-  updateSchedules = 'updateSchedules',
-  resendUserInvites = 'resendUserInvites',
-  addEventProfileUsers = 'addEventProfileUsers',
-  getTaxAndDocuments = 'getTaxAndDocuments',
-  updateContacts = 'updateContacts',
-  getWebEncoderProfiles = 'getWebEncoderProfiles',
   getOrganizationDetails = 'getOrganizationDetails',
+  updateOrganizationAccessibleDetails = 'updateOrganizationAccessibleDetails',
+  getTaxAndDocuments = 'getTaxAndDocuments',
+
+  // Contacts
+  addContacts = 'addContacts',
+  getContacts = 'getContacts',
+  updateContacts = 'updateContacts',
+  deleteContacts = 'deleteContacts',
+
+  // Cues
+  addCues = 'addCues',
+  getCues = 'getCues',
+  updateCues = 'updateCues',
+  deleteCues = 'deleteCues',
+  deleteAllCues = 'deleteAllCues',
+  // Cues - public
+  addPublicCues = 'addPublicCues',
+  getPublicCues = 'getPublicCues',
+  updatePublicCues = 'updatePublicCues',
+  deletePublicCues = 'deletePublicCues',
+  // Cues - shared
+  addSharedCues = 'addSharedCues',
+  getSharedCues = 'getSharedCues',
+  updateSharedCues = 'updateSharedCues',
+  deleteSharedCues = 'deleteSharedCues',
+  // Cues - other users
+  updateOtherUsersCues = 'updateOtherUsersCues',
+  deleteOtherUsersCues = 'deleteOtherUsersCues',
+
+  // Customers
+  getCustomer = 'getCustomer',
+
+  // Dashboard
+  getDashboard = 'getDashboard',
+  getMultisiteDashboard = 'getMultisiteDashboard',
+
+  // Destination groups
   updateDestinationGroups = 'updateDestinationGroups',
   getDestinationGroups = 'getDestinationGroups',
   addDestinationGroups = 'addDestinationGroups',
-  deleteEvents = 'deleteEvents',
-  getSharedCues = 'getSharedCues',
-  deleteSharedCues = 'deleteSharedCues',
-  deleteWebEncoderProfiles = 'deleteWebEncoderProfiles',
-  restartEncoders = 'restartEncoders',
-  revokeUserInvites = 'revokeUserInvites',
-  deleteCues = 'deleteCues',
-  getContacts = 'getContacts',
   deleteDestinationGroups = 'deleteDestinationGroups',
+
+  // Encoders
+  getEncoders = 'getEncoders',
+  updateEncoders = 'updateEncoders',
+  restartEncoders = 'restartEncoders',
+  updateEncodersVersion = 'updateEncodersVersion',
+  // Encoders - input
   updateEncodersInput = 'updateEncodersInput',
-  deleteContacts = 'deleteContacts',
-  deleteAllCues = 'deleteAllCues',
-  updateSharedCues = 'updateSharedCues',
-  downloadWebEvents = 'downloadWebEvents',
-  deleteSchedules = 'deleteSchedules',
-  updateCues = 'updateCues',
-  getTranscodedEvents = 'getTranscodedEvents',
-  getSchedules = 'getSchedules',
-  updateOtherUsersCues = 'updateOtherUsersCues',
-  downloadEvents = 'downloadEvents',
+  // Encoders - profiles
   addEncoderProfiles = 'addEncoderProfiles',
-  deletePublicCues = 'deletePublicCues',
-  addCues = 'addCues',
-  deleteOtherUsersCues = 'deleteOtherUsersCues',
-  updateEvents = 'updateEvents',
-  getCues = 'getCues',
-  addSharedCues = 'addSharedCues',
-  getAccountDetails = 'getAccountDetails',
-  updateOrganizationAccessibleDetails = 'updateOrganizationAccessibleDetails',
-  addManageSubscription = 'addManageSubscription',
-  updateUsers = 'updateUsers',
+  getEncoderProfiles = 'getEncoderProfiles',
+  updateEncoderProfiles = 'updateEncoderProfiles',
+  addTranscodedEventProfiles = 'addTranscodedEventProfiles',
+  // Encoders - web profiles
+  getWebEncoderProfiles = 'getWebEncoderProfiles',
+  addWebEncoderProfiles = 'addWebEncoderProfiles',
   updateWebEncoderProfiles = 'updateWebEncoderProfiles',
+  deleteWebEncoderProfiles = 'deleteWebEncoderProfiles',
+
+  // Events
+  addEvents = 'addEvents',
+  getEvents = 'getEvents',
+  updateEvents = 'updateEvents',
+  deleteEvents = 'deleteEvents',
+  downloadEvents = 'downloadEvents',
+  getTranscodedEvents = 'getTranscodedEvents',
+  downloadWebEvents = 'downloadWebEvents',
+  updateWebEventProfileStreamUrls = 'updateWebEventProfileStreamUrls',
+  // Events - profiles
+  getEventProfiles = 'getEventProfiles',
+  updateEventProfiles = 'updateEventProfiles',
+  // Events - profile users
+  addEventProfileUsers = 'addEventProfileUsers',
+  getEventProfileUsers = 'getEventProfileUsers',
+  deleteEventProfileUsers = 'deleteEventProfileUsers',
+
+  // Schedules
+  addSchedules = 'addSchedules',
+  getSchedules = 'getSchedules',
+  updateSchedules = 'updateSchedules',
+  deleteSchedules = 'deleteSchedules',
+
+  // Subscription
+  addManageSubscription = 'addManageSubscription',
+  getManageSubscription = 'getManageSubscription',
+  updateManageSubscription = 'updateManageSubscription',
+  deleteManageSubscription = 'deleteManageSubscription',
+
+  // Uploaders
+  addVideoUpload = 'addVideoUpload',
+  deleteUploaders = 'deleteUploaders',
+
+  // Users
+  getUsers = 'getUsers',
+  updateUsers = 'updateUsers',
+  deleteUsers = 'deleteUsers',
+  // Users - invites
+  addUserInvites = 'addUserInvites',
+  getUserInvites = 'getUserInvites',
+  revokeUserInvites = 'revokeUserInvites',
+  resendUserInvites = 'resendUserInvites',
 }
